@@ -13,6 +13,12 @@ export function createVerificationToken(userId) {
   })
 }
 
+export function createPasswordResetToken(userId, version) {
+  return jwt.sign({ sub: String(userId), purpose: 'reset-password', version }, environment.jwtSecret, {
+    expiresIn: '30m',
+  })
+}
+
 export function verifyToken(token, expectedPurpose) {
   const payload = jwt.verify(token, environment.jwtSecret)
   if (payload.purpose !== expectedPurpose) throw new jwt.JsonWebTokenError('Propósito inválido')

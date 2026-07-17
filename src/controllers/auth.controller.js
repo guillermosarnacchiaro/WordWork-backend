@@ -40,6 +40,22 @@ class AuthController {
       data: { user: toPublicUser(user), access_token: accessToken },
     })
   }
+
+  async forgotPassword(req, res) {
+    const { resetUrl } = await authService.forgotPassword(req.body.email)
+    const data = {}
+    if (environment.nodeEnv === 'development' && resetUrl) data.reset_url = resetUrl
+    res.json({
+      ok: true,
+      message: 'Si el correo corresponde a una cuenta verificada, enviamos un enlace de recuperación.',
+      data,
+    })
+  }
+
+  async resetPassword(req, res) {
+    await authService.resetPassword(req.body.token, req.body.password)
+    res.json({ ok: true, message: 'Contraseña actualizada correctamente.' })
+  }
 }
 
 export default new AuthController()

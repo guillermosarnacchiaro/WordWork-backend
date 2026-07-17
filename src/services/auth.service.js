@@ -2,10 +2,11 @@ import bcrypt from 'bcrypt'
 import userRepository from '../repositories/user.repository.js'
 import mailService from './mail.service.js'
 import AppError from '../utils/appError.js'
-import { createAccessToken, createVerificationToken, verifyToken } from '../utils/jwt.js'
+import { createAccessToken, createPasswordResetToken, createVerificationToken, verifyToken } from '../utils/jwt.js'
 
 const HASH_ROUNDS = 12
 const RESEND_COOLDOWN_MS = 60_000
+const RESET_COOLDOWN_MS = 60_000
 
 class AuthService {
   async register({ display_name, email, password }) {
@@ -71,6 +72,41 @@ class AuthService {
 
     await userRepository.updateById(user._id, { lastSeenAt: new Date() })
     return { user, accessToken: createAccessToken(user._id) }
+  }
+
+  async forgotPassword(email) {
+    const user = await userRepository.findByEmail(email.trim().toLowerCase())
+    if (!user || !user.emailVerified) return {}
+
+    const lastSentAt = user.passwordResetEmailSentAt?.getTime() || 0
+    if (Date.now() - lastSentAt < RESET_COOLDOWN_MS) return {}
+
+    const securityUser = await userRepository.findById(user._id, { includeResetVersion: true })
+    const token = createPasswordResetToken(user._id, securityUser.passwordResetVersion || 0)
+    const mailResult = await mailService.sendPasswordResetEmail({
+      email: user.email,
+      displayName: user.displayName,
+      token,
+    })
+    await userRepository.updateById(user._id, { passwordResetEmailSentAt: new Date() })
+    return mailResult
+  }
+
+  async resetPassword(token, password) {
+    let payload
+    try {
+      payload = verifyToken(token, 'reset-password')
+    } catch {
+      throw new AppError('El enlace de recuperación es inválido o venció.', 400)
+    }
+
+    const user = await userRepository.findById(payload.sub, { includeResetVersion: true })
+    if (!user || payload.version !== (user.passwordResetVersion || 0)) {
+      throw new AppError('El enlace de recuperación es inválido o ya fue utilizado.', 400)
+    }
+
+    const passwordHash = await bcrypt.hash(password, HASH_ROUNDS)
+    return userRepository.updatePassword(user._id, passwordHash)
   }
 }
 

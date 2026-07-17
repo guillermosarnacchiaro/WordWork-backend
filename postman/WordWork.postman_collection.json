@@ -15,6 +15,7 @@
     { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
     { "key": "access_token", "value": "", "type": "string" },
     { "key": "verification_token", "value": "", "type": "string" },
+    { "key": "reset_token", "value": "", "type": "string" },
     { "key": "current_user_id", "value": "", "type": "string" },
     { "key": "user_id", "value": "507f1f77bcf86cd799439011", "type": "string" },
     { "key": "member_id", "value": "507f191e810c19729de860ea", "type": "string" },
@@ -100,6 +101,31 @@
               }
             }
           ]
+        },
+        {
+          "name": "Solicitar recuperación de contraseña",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"postman@ejemplo.com\"\n}" },
+            "url": "{{base_url}}/api/auth/forgot-password",
+            "description": "Envía un enlace de recuperación si el correo pertenece a una cuenta verificada. En desarrollo guarda el token devuelto en reset_token."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["if (pm.response.code === 200) {", "  const resetUrl = pm.response.json().data?.reset_url;", "  if (resetUrl) {", "    const token = new URL(resetUrl).searchParams.get('token');", "    pm.collectionVariables.set('reset_token', token);", "    pm.environment.set('reset_token', token);", "  }", "}"] } }
+          ]
+        },
+        {
+          "name": "Restablecer contraseña",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"{{reset_token}}\",\n  \"password\": \"NuevaClave2026!\"\n}" },
+            "url": "{{base_url}}/api/auth/reset-password",
+            "description": "Cambia la contraseña mediante un token válido de 30 minutos. El token queda invalidado después de utilizarse."
+          }
         }
       ]
     },

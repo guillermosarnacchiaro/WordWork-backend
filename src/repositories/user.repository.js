@@ -6,8 +6,9 @@ class UserRepository {
     return includePassword ? query.select('+passwordHash') : query
   }
 
-  findById(id) {
-    return User.findById(id)
+  findById(id, { includeResetVersion = false } = {}) {
+    const query = User.findById(id)
+    return includeResetVersion ? query.select('+passwordResetVersion') : query
   }
 
   create(data) {
@@ -16,6 +17,14 @@ class UserRepository {
 
   updateById(id, data) {
     return User.findByIdAndUpdate(id, data, { new: true, runValidators: true })
+  }
+
+  updatePassword(id, passwordHash) {
+    return User.findByIdAndUpdate(
+      id,
+      { $set: { passwordHash }, $inc: { passwordResetVersion: 1 } },
+      { new: true, runValidators: true },
+    )
   }
 
   deleteById(id) {

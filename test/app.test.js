@@ -123,6 +123,30 @@ describe('Autenticación y registro', () => {
     assert.equal(response.status, 400)
   })
 
+  test('valida el correo antes de solicitar recuperación de contraseña', async () => {
+    const { response } = await request('/api/auth/forgot-password', jsonRequest('POST', {
+      email: 'correo-invalido',
+    }))
+    assert.equal(response.status, 400)
+  })
+
+  test('rechaza contraseñas nuevas demasiado cortas', async () => {
+    const { response } = await request('/api/auth/reset-password', jsonRequest('POST', {
+      token: 'token-de-prueba',
+      password: 'corta',
+    }))
+    assert.equal(response.status, 400)
+  })
+
+  test('un token de verificación no permite restablecer la contraseña', async () => {
+    const { createVerificationToken } = await import('../src/utils/jwt.js')
+    const { response } = await request('/api/auth/reset-password', jsonRequest('POST', {
+      token: createVerificationToken(userId),
+      password: 'NuevaClave2026!',
+    }))
+    assert.equal(response.status, 400)
+  })
+
   test('una ruta protegida exige Bearer JWT', async () => {
     const { response } = await request('/api/users/me')
     assert.equal(response.status, 401)

@@ -77,6 +77,29 @@ export function validateVerificationToken(req, _res, next) {
   next()
 }
 
+export function validateForgotPassword(req, _res, next) {
+  assertPlainBody(req.body)
+  rejectUnknownFields(req.body, ['email'])
+  const email = typeof req.body.email === 'string' ? req.body.email.trim() : ''
+  if (!emailPattern.test(email) || email.length > 120) {
+    throw new AppError('Ingresá un correo electrónico válido.', 400)
+  }
+  next()
+}
+
+export function validateResetPassword(req, _res, next) {
+  assertPlainBody(req.body)
+  rejectUnknownFields(req.body, ['token', 'password'])
+  const { token, password } = req.body
+  if (typeof token !== 'string' || !token.trim() || token.length > 2048) {
+    throw new AppError('Falta el token de recuperación o no es válido.', 400)
+  }
+  if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) {
+    throw new AppError('La contraseña debe tener al menos 8 caracteres y no superar 72 bytes.', 400)
+  }
+  next()
+}
+
 export function validatePrivateConversation(req, _res, next) {
   assertPlainBody(req.body)
   rejectUnknownFields(req.body, ['user_id'])

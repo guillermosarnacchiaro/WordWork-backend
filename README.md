@@ -191,6 +191,8 @@ Estados habituales: `200`, `201`, `204`, `400`, `401`, `403`, `404`, `409`, `413
 | POST | `/api/auth/resend-verification` | No | Reenvía el enlace si la cuenta está pendiente |
 | GET | `/api/auth/verify-email?token=...` | No | Verifica el correo y redirige al frontend |
 | POST | `/api/auth/login` | No | Valida credenciales y devuelve JWT |
+| POST | `/api/auth/forgot-password` | No | Envía un enlace de recuperación si corresponde |
+| POST | `/api/auth/reset-password` | No | Cambia la contraseña mediante un token válido |
 
 Registro:
 
@@ -218,6 +220,25 @@ Login:
   "password": "ClaveSegura2026!"
 }
 ```
+
+Solicitar recuperación; la respuesta es neutral para no revelar si la cuenta existe:
+
+```json
+{
+  "email": "ana@example.com"
+}
+```
+
+Restablecer la contraseña con el token recibido por correo:
+
+```json
+{
+  "token": "TOKEN_DEL_ENLACE",
+  "password": "NuevaClave2026!"
+}
+```
+
+El enlace vence en 30 minutos y solo puede utilizarse una vez.
 
 ### Usuarios y perfil
 
@@ -349,12 +370,14 @@ Solo los integrantes pueden leer o enviar mensajes. El contenido admite hasta 20
 - Contraseñas de 8 caracteres como mínimo y hasta 72 bytes.
 - JWT con firma, propósito y expiración.
 - Tokens de verificación válidos durante 24 horas.
+- Tokens de recuperación válidos durante 30 minutos e invalidados después de utilizarse.
 - CORS restringido a `FRONTEND_URL`.
 - Límite de cuerpo JSON de 20 KB.
 - Validación de ObjectId, email, URLs HTTP/HTTPS, longitudes y campos permitidos.
 - Rutas sensibles protegidas por JWT.
 - Errores internos sin detalles técnicos en la respuesta.
 - Respuesta neutral en el reenvío para reducir enumeración de cuentas.
+- Respuesta neutral en la recuperación de contraseña y espera mínima entre envíos.
 - Variables sensibles fuera del repositorio mediante `.env`.
 
 ## Pruebas automatizadas
@@ -368,7 +391,7 @@ La suite utiliza el runner integrado de Node y no se conecta con MongoDB. Compru
 Resultado actual:
 
 ```text
-28 pruebas aprobadas
+33 pruebas aprobadas
 0 fallidas
 ```
 

@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true, select: false },
     emailVerified: { type: Boolean, default: false },
     verificationEmailSentAt: { type: Date, default: null },
+    passwordResetEmailSentAt: { type: Date, default: null },
+    passwordResetVersion: { type: Number, default: 0, select: false },
     avatarUrl: { type: String, default: null },
     bio: { type: String, trim: true, maxlength: 140, default: 'Disponible' },
     availability: {
