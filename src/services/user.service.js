@@ -1,5 +1,7 @@
 import userRepository from '../repositories/user.repository.js'
 import AppError from '../utils/appError.js'
+import conversationRepository from '../repositories/conversation.repository.js'
+import messageRepository from '../repositories/message.repository.js'
 
 class UserService {
   async getProfile(userId) {
@@ -33,6 +35,37 @@ class UserService {
     const user = await userRepository.updateById(userId, { lastSeenAt: new Date() })
     if (!user) throw new AppError('Usuario no encontrado.', 404)
     return user
+  }
+
+  async deleteAccount(userId) {
+    const user = await userRepository.findById(userId)
+    if (!user) throw new AppError('Usuario no encontrado.', 404)
+
+    const privateConversations = await conversationRepository.listPrivateForUser(userId)
+    const privateIds = privateConversations.map((conversation) => conversation._id)
+    if (privateIds.length) {
+      await messageRepository.deleteByConversations(privateIds)
+      await conversationRepository.deleteByIds(privateIds)
+    }
+
+    const groups = await conversationRepository.listGroupsForUser(userId)
+    for (const group of groups) {
+      group.participants = group.participants.filter((id) => String(id) !== String(userId))
+      group.admins = group.admins.filter((id) => String(id) !== String(userId))
+      if (String(group.createdBy) === String(userId)) group.createdBy = null
+
+      if (!group.participants.length) {
+        await messageRepository.deleteByConversation(group._id)
+        await conversationRepository.deleteById(group._id)
+        continue
+      }
+      if (!group.admins.length) group.admins = [group.participants[0]]
+      await conversationRepository.save(group)
+    }
+
+    await messageRepository.deleteBySender(userId)
+    await messageRepository.removeUserReferences(userId)
+    await userRepository.deleteById(userId)
   }
 }
 

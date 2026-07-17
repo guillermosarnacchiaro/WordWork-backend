@@ -46,6 +46,25 @@ class MessageRepository {
       .populate('sender', 'displayName avatarUrl')
   }
 
+  deleteByConversation(conversationId) {
+    return Message.deleteMany({ conversation: conversationId })
+  }
+
+  deleteByConversations(conversationIds) {
+    return Message.deleteMany({ conversation: { $in: conversationIds } })
+  }
+
+  deleteBySender(userId) {
+    return Message.deleteMany({ sender: userId })
+  }
+
+  removeUserReferences(userId) {
+    return Message.updateMany(
+      { $or: [{ deliveredTo: userId }, { readBy: userId }] },
+      { $pull: { deliveredTo: userId, readBy: userId } },
+    )
+  }
+
   save(message) {
     return message.save()
   }

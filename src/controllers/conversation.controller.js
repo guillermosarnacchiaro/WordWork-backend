@@ -25,6 +25,11 @@ class ConversationController {
     res.json({ ok: true, message: 'Grupo actualizado.', data: { conversation: toConversation(conversation, req.user.id) } })
   }
 
+  async deleteGroup(req, res) {
+    await conversationService.deleteGroup(req.params.conversationId, req.user.id)
+    res.status(204).send()
+  }
+
   async addGroupMember(req, res) {
     const conversation = await conversationService.addGroupMember(req.params.conversationId, req.user.id, req.body.user_id)
     res.status(201).json({ ok: true, message: 'Integrante agregado.', data: { conversation: toConversation(conversation, req.user.id) } })

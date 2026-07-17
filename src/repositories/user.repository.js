@@ -18,6 +18,10 @@ class UserRepository {
     return User.findByIdAndUpdate(id, data, { new: true, runValidators: true })
   }
 
+  deleteById(id) {
+    return User.findByIdAndDelete(id)
+  }
+
   listVerified({ excludeUserId, search = '' }) {
     const filters = {
       _id: { $ne: excludeUserId },

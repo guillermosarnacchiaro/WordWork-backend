@@ -80,6 +80,15 @@ class ConversationService {
     return group.populate('participants', 'displayName email avatarUrl bio emailVerified')
   }
 
+  async deleteGroup(groupId, userId) {
+    const group = await this.assertParticipant(groupId, userId)
+    if (group.type !== 'group') throw new AppError('La conversación no es un grupo.', 400)
+    if (!isAdmin(group, userId)) throw new AppError('Solo un administrador puede eliminar el grupo.', 403)
+
+    await messageRepository.deleteByConversation(groupId)
+    await conversationRepository.deleteById(groupId)
+  }
+
   async addGroupMember(groupId, userId, memberId) {
     const group = await this.assertParticipant(groupId, userId)
     if (group.type !== 'group') throw new AppError('La conversación no es un grupo.', 400)

@@ -9,7 +9,7 @@ El backend administra usuarios, autenticación, verificación de correo, perfile
 - API: https://wordwork-backend.onrender.com
 - Health check: https://wordwork-backend.onrender.com/api/health
 - Frontend: https://wordwork-frontend.vercel.app
-- Estado local verificado: 22 pruebas aprobadas, chequeo de sintaxis correcto.
+- Estado local verificado: 28 pruebas aprobadas, chequeo de sintaxis correcto.
 
 > La primera respuesta del servicio desplegado puede demorar si la instancia se encuentra inactiva.
 
@@ -226,6 +226,7 @@ Login:
 | GET | `/api/users?q=ana` | Sí | Lista y busca usuarios verificados |
 | GET | `/api/users/me` | Sí | Obtiene el perfil propio |
 | PATCH | `/api/users/me` | Sí | Actualiza el perfil |
+| DELETE | `/api/users/me` | Sí | Elimina la cuenta y limpia sus datos relacionados |
 | POST | `/api/users/me/presence` | Sí | Actualiza la última conexión |
 
 Actualización de perfil; todos los campos son opcionales, pero debe enviarse al menos uno:
@@ -241,6 +242,17 @@ Actualización de perfil; todos los campos son opcionales, pero debe enviarse al
 
 Valores permitidos de `availability`: `available`, `busy` y `away`.
 
+#### CRUD de usuarios
+
+| Operación | Método y ruta |
+|---|---|
+| Crear | `POST /api/auth/register` |
+| Leer | `GET /api/users/me` y `GET /api/users` |
+| Actualizar | `PATCH /api/users/me` |
+| Eliminar | `DELETE /api/users/me` |
+
+Al eliminar una cuenta se borran sus conversaciones privadas y mensajes, se retiran sus referencias de lectura y se quita al usuario de los grupos. Si era el único administrador de un grupo con otros integrantes, se promueve automáticamente a otro miembro.
+
 ### Conversaciones y grupos
 
 | Método | Ruta | Auth | Descripción |
@@ -249,6 +261,7 @@ Valores permitidos de `availability`: `available`, `busy` y `away`.
 | POST | `/api/conversations/private` | Sí | Crea o recupera un chat privado |
 | POST | `/api/conversations/groups` | Sí | Crea un grupo |
 | PATCH | `/api/conversations/:conversationId/group` | Sí, admin | Actualiza el grupo |
+| DELETE | `/api/conversations/:conversationId/group` | Sí, admin | Elimina el grupo y sus mensajes |
 | POST | `/api/conversations/:conversationId/group/members` | Sí, admin | Agrega un integrante |
 | DELETE | `/api/conversations/:conversationId/group/members/:userId` | Sí, admin | Expulsa un integrante |
 | PATCH | `/api/conversations/:conversationId/group/members/:userId/role` | Sí, admin | Cambia el rol |
@@ -301,6 +314,17 @@ Cambiar rol:
 
 Los roles permitidos son `admin` y `member`. Un grupo admite hasta 50 integrantes y siempre debe conservar al menos un administrador.
 
+La eliminación de un grupo es permanente, solo puede realizarla un administrador y también elimina todos los mensajes asociados.
+
+#### CRUD de grupos
+
+| Operación | Método y ruta |
+|---|---|
+| Crear | `POST /api/conversations/groups` |
+| Leer | `GET /api/conversations` |
+| Actualizar | `PATCH /api/conversations/:conversationId/group` |
+| Eliminar | `DELETE /api/conversations/:conversationId/group` |
+
 ### Mensajes
 
 | Método | Ruta | Auth | Descripción |
@@ -344,7 +368,7 @@ La suite utiliza el runner integrado de Node y no se conecta con MongoDB. Compru
 Resultado actual:
 
 ```text
-22 pruebas aprobadas
+28 pruebas aprobadas
 0 fallidas
 ```
 
@@ -389,11 +413,11 @@ El Blueprint usa una instancia `starter` porque las instancias gratuitas de Rend
 
 ## Usuario de prueba
 
-Crear estas credenciales en la base de producción y verificar su correo antes de entregar:
+Cuenta verificada disponible para probar la API y la aplicación desplegada:
 
 ```text
-Correo: pendiente
-Contraseña: pendiente
+Correo: demo.wordwork@example.com
+Contraseña: WordWorkDemo2026!
 ```
 
 ## Seguridad del repositorio

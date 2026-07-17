@@ -130,6 +130,15 @@
         {
           "name": "Actualizar presencia",
           "request": { "method": "POST", "header": [], "url": "{{base_url}}/api/users/me/presence" }
+        },
+        {
+          "name": "Eliminar mi cuenta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/users/me",
+            "description": "Elimina permanentemente la cuenta autenticada y sus datos relacionados. Usar únicamente con un usuario descartable."
+          }
         }
       ]
     },
@@ -194,6 +203,15 @@
         {
           "name": "Expulsar integrante",
           "request": { "method": "DELETE", "header": [], "url": "{{base_url}}/api/conversations/{{conversation_id}}/group/members/{{member_id}}" }
+        },
+        {
+          "name": "Eliminar grupo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/group",
+            "description": "Elimina permanentemente el grupo y sus mensajes. Solo puede ejecutarlo un administrador."
+          }
         }
       ]
     },

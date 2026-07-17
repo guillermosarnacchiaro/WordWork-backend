@@ -33,8 +33,24 @@ class ConversationRepository {
       .sort({ lastMessageAt: -1, updatedAt: -1 })
   }
 
+  listPrivateForUser(userId) {
+    return Conversation.find({ type: 'private', participants: userId }).select('_id')
+  }
+
+  listGroupsForUser(userId) {
+    return Conversation.find({ type: 'group', participants: userId })
+  }
+
+  deleteByIds(ids) {
+    return Conversation.deleteMany({ _id: { $in: ids } })
+  }
+
   touch(id, date) {
     return Conversation.findByIdAndUpdate(id, { lastMessageAt: date }, { new: true })
+  }
+
+  deleteById(id) {
+    return Conversation.findByIdAndDelete(id)
   }
 
   save(conversation) {

@@ -27,9 +27,9 @@ class MailService {
       text: `Hola ${displayName}. Verificá tu cuenta: ${verificationUrl}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#111b21">
-          <h1 style="color:#008069">WordWork</h1>
+          <h1 style="color:#0b1f35">WordWork</h1>
           <p>Hola ${displayName}, confirmá tu correo para activar la cuenta.</p>
-          <p><a href="${verificationUrl}" style="display:inline-block;padding:12px 20px;border-radius:24px;background:#00a884;color:#fff;text-decoration:none">Verificar correo</a></p>
+          <p><a href="${verificationUrl}" style="display:inline-block;padding:12px 20px;border-radius:24px;background:#155eef;color:#fff;text-decoration:none">Verificar correo</a></p>
           <p style="color:#667781;font-size:13px">El enlace vence en 24 horas.</p>
         </div>`,
     })

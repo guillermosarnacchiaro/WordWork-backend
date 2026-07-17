@@ -29,6 +29,11 @@ class UserController {
     const user = await userService.touchPresence(req.user.id)
     res.json({ ok: true, data: { user: toPublicUser(user) } })
   }
+
+  async deleteAccount(req, res) {
+    await userService.deleteAccount(req.user.id)
+    res.status(204).send()
+  }
 }
 
 export default new UserController()

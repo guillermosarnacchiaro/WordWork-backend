@@ -128,6 +128,11 @@ describe('Autenticación y registro', () => {
     assert.equal(response.status, 401)
   })
 
+  test('eliminar la cuenta requiere autenticación', async () => {
+    const { response } = await request('/api/users/me', { method: 'DELETE' })
+    assert.equal(response.status, 401)
+  })
+
   test('rechaza un JWT alterado', async () => {
     const { response } = await request('/api/users/me', {
       headers: { authorization: `Bearer ${accessToken}alterado` },
@@ -173,6 +178,21 @@ describe('Perfil, grupos y mensajes', () => {
 
   test('rechaza un ID de conversación inválido antes de consultar MongoDB', async () => {
     const { response } = await request('/api/conversations/id-invalido/messages', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    assert.equal(response.status, 400)
+  })
+
+  test('eliminar un grupo requiere autenticación', async () => {
+    const { response } = await request('/api/conversations/507f191e810c19729de860ea/group', {
+      method: 'DELETE',
+    })
+    assert.equal(response.status, 401)
+  })
+
+  test('rechaza un ID de grupo inválido antes de consultar MongoDB', async () => {
+    const { response } = await request('/api/conversations/id-invalido/group', {
+      method: 'DELETE',
       headers: { authorization: `Bearer ${accessToken}` },
     })
     assert.equal(response.status, 400)
