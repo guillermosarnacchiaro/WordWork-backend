@@ -4,6 +4,15 @@ API REST de WordWork, desarrollada como trabajo integrador final de la Diplomatu
 
 El backend administra usuarios, autenticación, verificación de correo, perfiles, conversaciones privadas, grupos y mensajes. Utiliza una arquitectura en capas para separar HTTP, reglas de negocio y acceso a datos.
 
+## Demo y estado
+
+- API: https://wordwork-backend.onrender.com
+- Health check: https://wordwork-backend.onrender.com/api/health
+- Frontend: https://wordwork-frontend.vercel.app
+- Estado local verificado: 22 pruebas aprobadas, chequeo de sintaxis correcto.
+
+> La primera respuesta del servicio desplegado puede demorar si la instancia se encuentra inactiva.
+
 ## Tecnologías
 
 - Node.js
@@ -67,18 +76,41 @@ Los controladores no contienen consultas de MongoDB. Los servicios aplican las r
 ## Instalación
 
 ```bash
-git clone <URL_DEL_REPOSITORIO_BACKEND>
-cd backend
-npm install
+git clone https://github.com/guillermosarnacchiaro/WordWork-backend.git
+cd WordWork-backend
+npm ci
 ```
 
-Copiar `.env.example` como `.env`, completar las variables y ejecutar:
+Copiar `.env.example` como `.env` y completar las variables:
+
+```bash
+cp .env.example .env
+```
+
+En PowerShell, el comando equivalente es `Copy-Item .env.example .env`.
+
+Luego iniciar el servidor:
 
 ```bash
 npm run dev
 ```
 
 La API estará disponible normalmente en `http://localhost:3000`.
+
+Para comprobar que inició correctamente:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Respuesta esperada:
+
+```json
+{
+  "ok": true,
+  "message": "API de WordWork funcionando."
+}
+```
 
 ## Variables de entorno
 
@@ -90,7 +122,7 @@ La API estará disponible normalmente en `http://localhost:3000`.
 | `JWT_SECRET` | Sí | valor aleatorio largo | Firma de tokens; nunca publicarlo |
 | `JWT_EXPIRES_IN` | Sí | `1d` | Duración del token de acceso |
 | `FRONTEND_URL` | Sí | `http://localhost:5173` | Origen permitido por CORS y redirección |
-| `BACKEND_URL` | Sí | `http://localhost:3000` | Base de los enlaces de verificación |
+| `BACKEND_URL` | Desarrollo | `http://localhost:3000` | Base de los enlaces de verificación; en Render se usa `RENDER_EXTERNAL_URL` como respaldo |
 | `SMTP_HOST` | Para email real | `smtp.gmail.com` | Servidor SMTP |
 | `SMTP_PORT` | Para email real | `587` | Puerto SMTP |
 | `SMTP_SECURE` | Para email real | `false` | `true` normalmente para puerto 465 |
@@ -346,6 +378,8 @@ El backend puede desplegarse en Render:
 7. Establecer `FRONTEND_URL` con la URL pública de Vercel.
 
 También se incluye `render.yaml` para crear el servicio como Blueprint. Render genera `JWT_SECRET`, utiliza `/api/health` como health check y solicita los valores secretos durante la creación. `BACKEND_URL` es opcional en Render porque la API utiliza automáticamente `RENDER_EXTERNAL_URL`.
+
+El Blueprint usa una instancia `starter` porque las instancias gratuitas de Render bloquean los puertos SMTP `25`, `465` y `587` que utiliza Nodemailer.
 
 ## Enlaces de entrega
 

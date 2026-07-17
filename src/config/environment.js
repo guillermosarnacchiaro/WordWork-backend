@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-const requiredInProduction = ['MONGO_URI', 'JWT_SECRET', 'FRONTEND_URL', 'BACKEND_URL']
+const requiredInProduction = ['MONGO_URI', 'JWT_SECRET', 'FRONTEND_URL']
 
 if (process.env.NODE_ENV === 'production') {
   const missing = requiredInProduction.filter((name) => !process.env[name])
@@ -16,7 +16,7 @@ const environment = Object.freeze({
   jwtSecret: process.env.JWT_SECRET || 'solo-desarrollo-cambiar-antes-de-desplegar',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
-  backendUrl: process.env.BACKEND_URL || 'http://localhost:3000',
+  backendUrl: process.env.BACKEND_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000',
   smtp: {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT) || 587,
