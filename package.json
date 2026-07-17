@@ -1,0 +1,23 @@
+{
+  "name": "wordwork-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "node --watch src/main.js",
+    "start": "node src/main.js",
+    "check": "node --check src/main.js",
+    "test": "node --test --test-isolation=none --test-concurrency=1",
+    "test:watch": "node --test --watch --test-isolation=none --test-concurrency=1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.1",
+    "nodemailer": "^9.0.3"
+  }
+}

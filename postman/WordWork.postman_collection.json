@@ -1,0 +1,226 @@
+{
+  "info": {
+    "_postman_id": "d605b86f-66fb-45c0-8a10-94e157a9a59e",
+    "name": "WordWork API",
+    "description": "Colección para probar la API REST de WordWork. Ejecutá primero Registro o Login. El Login guarda automáticamente access_token y current_user_id.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{access_token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "verification_token", "value": "", "type": "string" },
+    { "key": "current_user_id", "value": "", "type": "string" },
+    { "key": "user_id", "value": "507f1f77bcf86cd799439011", "type": "string" },
+    { "key": "member_id", "value": "507f191e810c19729de860ea", "type": "string" },
+    { "key": "conversation_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Estado",
+      "item": [
+        {
+          "name": "Comprobar API",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/health",
+            "description": "Comprueba que la API esté funcionando."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('Estado 200', () => pm.response.to.have.status(200));", "pm.test('API activa', () => pm.expect(pm.response.json().ok).to.eql(true));"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"display_name\": \"Usuario Postman\",\n  \"email\": \"postman@ejemplo.com\",\n  \"password\": \"WordWork2026!\"\n}" },
+            "url": "{{base_url}}/api/auth/register",
+            "description": "Crea una cuenta y envía el correo de verificación. Cambiá el email antes de ejecutarla."
+          }
+        },
+        {
+          "name": "Reenviar verificación",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"postman@ejemplo.com\"\n}" },
+            "url": "{{base_url}}/api/auth/resend-verification"
+          }
+        },
+        {
+          "name": "Verificar correo",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/auth/verify-email?token={{verification_token}}",
+            "description": "Pegá el token recibido por correo en verification_token. La API responde con una redirección al frontend."
+          }
+        },
+        {
+          "name": "Iniciar sesión",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"postman@ejemplo.com\",\n  \"password\": \"WordWork2026!\"\n}" },
+            "url": "{{base_url}}/api/auth/login",
+            "description": "Guarda automáticamente el JWT y el ID del usuario en las variables de la colección."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login correcto', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.collectionVariables.set('access_token', data.access_token);",
+                  "  pm.collectionVariables.set('current_user_id', data.user.id);",
+                  "  pm.environment.set('access_token', data.access_token);",
+                  "  pm.environment.set('current_user_id', data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios y perfil",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/users", "description": "Devuelve usuarios verificados excepto el autenticado." }
+        },
+        {
+          "name": "Buscar usuarios",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/users?q=ana" }
+        },
+        {
+          "name": "Obtener mi perfil",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/users/me" }
+        },
+        {
+          "name": "Actualizar mi perfil",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"display_name\": \"Usuario Postman\",\n  \"bio\": \"Probando WordWork\",\n  \"avatar_url\": \"https://i.pravatar.cc/300\",\n  \"availability\": \"available\"\n}" },
+            "url": "{{base_url}}/api/users/me"
+          }
+        },
+        {
+          "name": "Actualizar presencia",
+          "request": { "method": "POST", "header": [], "url": "{{base_url}}/api/users/me/presence" }
+        }
+      ]
+    },
+    {
+      "name": "Conversaciones y grupos",
+      "item": [
+        {
+          "name": "Listar conversaciones",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/conversations" }
+        },
+        {
+          "name": "Abrir conversación privada",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"user_id\": \"{{user_id}}\"\n}" },
+            "url": "{{base_url}}/api/conversations/private"
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["if ([200, 201].includes(pm.response.code)) {", "  const id = pm.response.json().data.conversation.id;", "  pm.collectionVariables.set('conversation_id', id);", "  pm.environment.set('conversation_id', id);", "}"] } }
+          ]
+        },
+        {
+          "name": "Crear grupo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Grupo Postman\",\n  \"member_ids\": [\n    \"{{user_id}}\",\n    \"{{member_id}}\"\n  ]\n}" },
+            "url": "{{base_url}}/api/conversations/groups"
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('Grupo creado', () => pm.response.to.have.status(201));", "if (pm.response.code === 201) {", "  const id = pm.response.json().data.conversation.id;", "  pm.collectionVariables.set('conversation_id', id);", "  pm.environment.set('conversation_id', id);", "}"] } }
+          ]
+        },
+        {
+          "name": "Actualizar grupo",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Grupo actualizado\",\n  \"description\": \"Grupo administrado desde Postman\",\n  \"avatar_url\": \"\"\n}" },
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/group"
+          }
+        },
+        {
+          "name": "Agregar integrante",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"user_id\": \"{{member_id}}\"\n}" },
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/group/members"
+          }
+        },
+        {
+          "name": "Cambiar rol",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"admin\"\n}" },
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/group/members/{{member_id}}/role"
+          }
+        },
+        {
+          "name": "Expulsar integrante",
+          "request": { "method": "DELETE", "header": [], "url": "{{base_url}}/api/conversations/{{conversation_id}}/group/members/{{member_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Mensajes",
+      "item": [
+        {
+          "name": "Listar mensajes",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/conversations/{{conversation_id}}/messages?limit=50" }
+        },
+        {
+          "name": "Buscar mensajes",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/conversations/{{conversation_id}}/messages/search?q=hola" }
+        },
+        {
+          "name": "Enviar mensaje",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hola desde Postman\"\n}" },
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/messages"
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('Mensaje creado', () => pm.response.to.have.status(201));"] } }
+          ]
+        }
+      ]
+    }
+  ]
+}
