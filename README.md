@@ -345,11 +345,13 @@ El backend puede desplegarse en Render:
 6. Establecer `BACKEND_URL` con la URL pública de Render.
 7. Establecer `FRONTEND_URL` con la URL pública de Vercel.
 
+También se incluye `render.yaml` para crear el servicio como Blueprint. Render genera `JWT_SECRET`, utiliza `/api/health` como health check y solicita los valores secretos durante la creación. `BACKEND_URL` es opcional en Render porque la API utiliza automáticamente `RENDER_EXTERNAL_URL`.
+
 ## Enlaces de entrega
 
-- API desplegada: pendiente.
-- Frontend desplegado: pendiente.
-- Repositorio frontend: pendiente.
+- API desplegada: https://wordwork-backend.onrender.com
+- Frontend desplegado: https://wordwork-frontend.vercel.app
+- Repositorio frontend: https://github.com/guillermosarnacchiaro/WordWork-frontend
 
 ## Usuario de prueba
 
